@@ -1,0 +1,270 @@
+.parent-scrollable {
+  position: relative;
+}
+
+.x-scrollable-div {
+
+    overflow-x: scroll;
+    overflow-y: visible;
+    margin: auto;
+    text-align: center;
+    /* position: relative; */
+    /* position: relative; */
+}
+
+.inner-div {
+  width: 3000px;
+}
+
+
+/*-------------------------------- */
+
+.outer {
+  position: relative;
+  width: 100%;
+}
+.inner {
+    overflow-x: scroll;
+    overflow-y: visible;
+    /*width: 900px;*/
+    margin-left: 330px; /* Сдвинет всю таблицу внутри на 100 пикселей */
+}
+
+/* custom */
+.outer > .inner > table.ui.very.basic > thead > tr > th {
+  border: none;
+  border-bottom: 3px solid #75b0ec;
+}
+
+.outer > .inner > table.ui.very.basic > thead > tr > th > .empty-d {
+  font-size: .89em;
+  color: #ddd;
+}
+
+.outer > .inner > table.ui.very.basic > thead > tr > th.nonempty {
+  font-size: 1em;
+  color: #000;
+}
+
+.outer > .inner > table.ui.very.basic > thead > tr > th:after {
+    content: '';
+    display: block;
+    background: #eee;
+    width: 3px;
+    height: 3px;
+    border-radius: 6px;
+    border: 3px solid #0e66d2;
+    position: relative;
+    left: 50%;
+    top: 16px;
+    top: 20;
+}
+
+
+
+.outer > .inner > table.ui.very.basic > tbody > tr > td {
+  border: none;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.value-span {
+  border: 1px solid #e6cf5b;
+  padding: 5px;
+  cursor: pointer;
+}
+
+
+/* ^ custom */
+
+.expired-form-label {
+    margin-top: 12px;
+}
+
+.total-cell {
+    /*background: #ddd !important;*/
+    font-weight: bold;
+}
+
+/* Crud table */
+.crud-main-table {
+    margin-bottom: 100px !important;
+}
+
+.control-th {
+    width: 100px;
+}
+
+.diagram-clients-table {
+    font-size: .85em !important;
+}
+
+.small-rect-input {
+    border-radius: 0 !important;
+    padding: 4px 5px !important;
+}
+
+::-webkit-input-placeholder {color:#adadad !important;}
+::-moz-placeholder          {color:#adadad !important;}/* Firefox 19+ */
+:-moz-placeholder           {color:#adadad !important;}/* Firefox 18- */
+:-ms-input-placeholder      {color:#adadad !important;}
+
+.to-left-side-margin {
+    margin-left: -5px !important;
+}
+
+.editable-span {
+    cursor: pointer;
+    border-bottom: 1px dotted #0084b4;
+}
+
+.add-category-span {
+    font-style: italic;
+    color: #0084b4;
+    cursor: pointer;
+    border-bottom: 1px dotted #0084b4;
+}
+
+.right-aligned {
+    text-align: right !important;
+}
+
+.fixed-first-column-table > tbody > tr> td:first-child, .fixed-first-column-table > thead > tr> th:first-child {
+     text-align: left !important;
+     position: absolute;
+     padding-left: 7px !important;
+     left: 0; /* Прижмет к левому краю .outer, который на 100 пикселей шире .inner */
+     width: 330px; /* Занимаем отведенное место */
+}
+
+.icon-near-dropdown {
+    padding-left: 5px !important;
+    margin-top: 6px !important;
+}
+
+.left-floated-icon {
+    float: left !important;
+}
+
+.italic-text-link{
+    font-style: italic;
+}
+
+.custom-item-popup {
+    /*width: 200px !important;*/
+}
+
+.custom-item-popup > .input > input {
+    width: 120px !important;
+    border-radius: 0!important;
+    padding: 5px 10px !important;
+}
+
+.custom-item-popup > .input > .for-date {
+    /*margin-bottom: 10px !important;*/
+}
+
+.custom-item-popup > .input > .ui.button {
+    border-radius: 0!important;
+    padding: 3px !important;
+    width: 37px;
+}
+
+    .custom-item-popup > .input > .ui.button > .icon {
+        padding-left: 10px;
+    }
+
+.close-popup-icon {
+    float: right !important;
+    margin-top: -10px !important;
+    padding-left: 20px !important;
+}
+
+.custom-add-menu {
+    /*display: none;*/
+    z-index: 1000;
+    position: absolute;
+    overflow: hidden;
+    border: 1px solid #CCC;
+    white-space: nowrap;
+    background: #FFF;
+    padding: 10px 15px;
+    border-radius: 4px;
+}
+
+/*.custom-add-menu.ng-hide-add, .custom-add-menu.ng-hide-remove{*/
+    /*transition: all linear 0.5s;*/
+/*}*/
+
+/*.custom-add-menu.ng-hide {*/
+  /*line-height: 0;*/
+  /*opacity: 0;*/
+  /*padding: 0 10px;*/
+/*}*/
+
+.custom-animation {
+  -webkit-transition:all linear 0.1s;
+  -moz-transition:all linear 0.1s;
+  -o-transition:all linear 0.1s;
+  transition:all linear 0.1s;
+}
+
+.custom-animation.ng-hide-remove,
+.custom-animation.ng-hide-add.ng-hide-add-active {
+  opacity: 0;
+  display: block !important;
+}
+
+.custom-animation.ng-hide-add,
+.custom-animation.ng-hide-remove.ng-hide-remove-active {
+  opacity: 1;
+  display: block !important;
+}
+
+.finished-tr {
+    background: #F1FAFF!important;
+    color: #333 !important;
+}
+
+.no-padding-segment {
+    padding: 0 !important;
+    margin-top: 10px !important;
+    margin-bottom: 0 !important;
+}
+
+.loader-dli
+{
+    float: right;
+    margin-top: 3px !important;
+    margin-right: 10px !important;
+}
+
+
+.read-dateinput {
+    background: #fafafa !important;
+}
+
+
+.sync-new-dlis {
+    margin-top: 2em !important;
+    margin-bottom: 2em !important;
+}
+
+.with-overflow-tds > tbody > tr > td {
+    overflow: visible !important;
+}
+
+
+
+.ui.selection.dropdown.currency-selection {
+  min-width: 80px;
+  width: 80px;
+}
+
+
+.ui.list.payments-list {
+  max-height: 350px;
+  overflow-y: auto;
+  font-size: .95em;
+  min-width: 250px;
+}

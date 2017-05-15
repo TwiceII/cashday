@@ -1,0 +1,254 @@
+.ui.table {
+  border-radius: 0 !important;
+}
+
+.ui.table tr td {
+  white-space: pre;
+}
+
+.ui.table tr td:first-child {
+  padding-left: 1em;
+}
+
+.ui.grid>.column:not(.row), .ui.grid>.row>.column {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.search-div {
+  padding-right: 10px;
+}
+
+/**
+* Таблица измерений
+**/
+.dimensions-div .ui.sortable.table {
+  border: none;
+}
+
+
+/**
+* Таблица значений
+**/
+.values-div {
+  border-left: 1px solid #aaa;
+/*   width: 600px; */
+  overflow-x: scroll;
+  margin-bottom: -12px;
+}
+
+.values-div::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+.values-div::-webkit-scrollbar-track {
+  background-color: #efefef;
+}
+
+.values-div::-webkit-scrollbar-thumb {
+  background-color: darkgrey;
+  outline: 1px solid slategrey;
+}
+
+.values-div .ui.very.basic.table {
+  text-align: right;
+}
+
+.row-totals-div .ui.very.basic.table {
+  text-align: right;
+}
+
+.values-div .ui.padded.basic.table tr th:last-child,
+.values-div .ui.padded.basic.table tr td:last-child {
+  padding-right: 1em;
+}
+
+/* .ui.table tr td {
+  border-top: none;
+} */
+/*   border-left: 1px solid #ffffff;
+  border-top: 1px solid #ffffff; */
+
+
+.values-div .ui.very.basic.table tr th {
+/*   border-left: none; */
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.value-cell > span {
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border-radius: 5px;
+}
+
+.fact-value.negative {
+  background: #ffebdb;
+}
+
+.fact-value.positive {
+  background: #bffdb4;
+}
+
+
+.plan-value {
+/*   color: #07a3f1;
+  margin-left: 5px; */
+  color: #2656b1;
+  background: #c6eaff;
+}
+
+.ui.table td.total-cell {
+  background: #fcffd6;
+  font-weight: bold;
+
+}
+
+.ui.very.basic.table th.today-cell {
+  background-color: #d5ebfb;
+  border-left-color: #84c4f5;
+  border-left-width: 2px;
+}
+.ui.very.basic.table td.today-cell
+{
+/*   background: #f7fcff; */
+  border-left-color: #84c4f5;
+  border-left-width: 2px;
+}
+
+.ui.very.basic.table td.selected-cell
+{
+  background: #d6d6d6;
+}
+
+/**
+* Итого
+**/
+.row-totals-div {
+  border-left: 2px solid #aaa;
+}
+
+
+.ui.very.basic.table td:first-child,
+.ui.very.basic.table th:first-child {
+  padding-left: 1em !important;
+}
+
+.ui.basic.table td.dim-1 {
+  background: #ecfcfe;
+
+}
+
+.ui.basic.table td.dim-2 {
+  background: #fbedfb;
+
+}
+
+.ui.basic.table td.dim-3 {
+  background: rgb(220, 255, 248);
+}
+
+.ui.basic.table td.dim-4 {
+  background: #f3e9c8;
+}
+
+td.accented-td {
+  font-weight: bold;
+}
+
+.icon-near-dropdown {
+    padding-left: 5px !important;
+    margin-top: 6px !important;
+}
+
+.ui.stackable.cards.dim-chooser-list {
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+.ui.stackable.cards.dim-chooser-list .card {
+  box-shadow: none;
+}
+
+
+.ui.table thead tr th.main-dim,
+.ui.table tbody tr td.main-dim {
+  border-left: 3px solid #6ebde2;
+}
+
+
+.ui.list.dimensions-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 10px;
+  margin-top: 10px;
+}
+
+
+.ui.button.header-btn {
+  margin-left: 20px;
+  margin-top: -10px;
+}
+
+
+tr.add-rule-tr {
+  /*background: #efef00;*/
+}
+
+.ui.small.fluid.input input.dimension-edit-input {
+  padding: 5px;
+}
+
+
+i.icon.delete-entry-icon {
+  margin-right: -7px;
+}
+
+.modal-for-item {
+  width: 680px;
+  z-index: 999;
+  position: absolute;
+  top: 70px;
+  left: 30%;
+}
+
+
+.ui.menu a.item.outflow-btn {
+  color: #bd8888;
+}
+
+.ui.menu a.item.inflow-btn {
+  color: #61af61;
+}
+
+.large.remove.link.icon.close-modal-icon {
+  float: right;
+  margin-top: 3px;
+}
+
+.ui.header.modal-header {
+  display: inline;
+}
+
+
+.ui.secondary.pointing.menu .item.loading-menu-item {
+  margin-left: 10px;
+}
+
+.ui.secondary.pointing.menu .item.loading-menu-item .loading-text {
+  font-size: 14px;
+  color: #777;
+  font-style: italic;
+}
+
+.ui.secondary.pointing.menu .item.loading-menu-item .ui.inline.active.loader {
+  margin-left: 15px;
+}
+
+.ui.very.basic.table.with-overflow-tds tr td {
+  overflow: visible;
+
+}

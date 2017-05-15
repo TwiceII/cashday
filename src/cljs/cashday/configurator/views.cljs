@@ -7,16 +7,12 @@
               [cashday.common.utils :as u]
               [cashday.common.tuples :as tp]
               [cashday.common.dom-utils :as dom]
+              [cashday.common.reframe-utils :as rfr-u]
               [cashday.common.moment-utils :as mu]))
 
 (defn is-none-or-?
   [k v-to-check]
   (u/in? [:none k] v-to-check))
-
-(defn entity-worked-on?
-  [work-entity-params entity-type entity]
-  (and (= (:entity-type work-entity-params) entity-type)
-       (= (:entity-self work-entity-params) entity)))
 
 (defn modes-off?
   [work-entity-params]
@@ -33,23 +29,6 @@
       #(rfr/dispatch [:cfgr/item-mode-off]))])
 
 
-(defn dimension-input-view
-  "Инпут для редактирования/добавления измерения"
-  [dimension]
-  [:div.ui.small.fluid.input dom/stop-prop-opts ; режим редактирования
-    [:input.dimension-edit-input {:type "text"
-                                  :autoFocus true
-                                  :on-change #(rfr/dispatch [:cfgr/set-current-dim-name
-                                                              (dom/value-of-input %)])
-                                  :default-value (:name dimension)}]
-    [:div {:style {:margin-top "3px"}}
-      [:i.remove.small.right.floated.bordered.icon
-        {:on-click (dom/no-propagation
-                     #(rfr/dispatch [:cfgr/item-mode-off]))}]
-      [:i.checkmark.green.small.right.floated.bordered.inverted.icon
-        {:on-click (dom/no-propagation
-                      #(rfr/dispatch [:cfgr/approve-current-item-edit]))}]]])
-
 ;;;;
 ;;;; Вьюшки для групп измерений
 ;;;;
@@ -64,7 +43,12 @@
     (if selected?
       (if in-edit?
         ;; режим редактирования
-        [dimension-input-view dimension]
+        [rfr-u/text-input-w-buttons-comp
+          (:name dimension)
+          #(rfr/dispatch [:cfgr/set-current-dim-name (dom/value-of-input %)])
+          #(rfr/dispatch [:cfgr/approve-current-item-edit])
+          #(rfr/dispatch [:cfgr/item-mode-off])
+          nil nil]
         ;; режим выделенной строки
         [:div
           (:name dimension)
@@ -86,22 +70,50 @@
       ;; если не выделено
       (:name dimension))])
 
+(defn dim-group-header-view
+  [dim-group is-worked-on? work-mode]
+  (if (and is-worked-on? (= :edit-group work-mode))
+    [:div dom/stop-prop-opts
+      [rfr-u/text-input-w-buttons-comp
+       (:name dim-group)
+       #(rfr/dispatch [:cfgr/set-current-dim-group-name
+                       (dom/value-of-input %)])
+       #(rfr/dispatch [:cfgr/approve-current-dim-group-edit])
+       #(rfr/dispatch [:cfgr/reset-work-entity-params])
+       nil
+       nil]]
+    [:div.header
+     [:span.link-header
+      {:on-click (dom/no-propagation
+                   #(rfr/dispatch [:cfgr/set-edit-dim-group-mode dim-group]))}
+      (:name dim-group)]
+     [:i.right.floated.trash.link.icon
+      {:title "Удалить группу"
+       :on-click #(rfr/dispatch
+                    [:app/show-approve-modal {:text "Удалить группу?"
+                                              :approve-text "Удалить"
+                                              :cancel-text "Не удалять"
+                                              :approve-fn
+                                               (fn [_]
+                                                 (rfr/dispatch [:cfgr/delete-dim-group dim-group]))}])}]]))
+
 
 (defn dim-group-panel-view
   "Вьюшка для группы измерений"
   [dim-group]
   (let [work-entity-params @(rfr/subscribe [:cfgr/work-entity-params])
-        is-worked-on? (entity-worked-on? work-entity-params :dim-group dim-group)
-        work-mode (when is-worked-on? (:work-mode work-entity-params))
-        selected-item (when is-worked-on? (:selected-item work-entity-params))]
+        sorted-dims        @(rfr/subscribe [:sorted-dims-in (:id dim-group)])
+        is-worked-on?      @(rfr/subscribe [:cfgr/entity-worked-on? :dim-group dim-group])
+        work-mode          (when is-worked-on? (:work-mode work-entity-params))
+        selected-item      (when is-worked-on? (:selected-item work-entity-params))]
     [:div.card
       [:div.content
-        [:div.header (:name dim-group)]
+        [dim-group-header-view dim-group is-worked-on? work-mode]
         [:div.meta (str "Всего: " (count (:dims dim-group)))]
         [:div.description
           [:div.ui.divided.relaxed.list.dimensions-list
             {:class (when (:editable? dim-group) "selection")}
-            (for [dim (vals (:dims dim-group))]
+            (for [dim sorted-dims]
               ^{:key (:id dim)} [dim-row-view dim
                                               dim-group
                                               (= selected-item dim)
@@ -110,7 +122,12 @@
       ;; кнопка "добавить запись"
       [:div.extra.content
         (when (and is-worked-on? (= :add-item work-mode))
-          [dimension-input-view nil])
+          [rfr-u/text-input-w-buttons-comp
+            nil
+            #(rfr/dispatch [:cfgr/set-current-dim-name (dom/value-of-input %)])
+            #(rfr/dispatch [:cfgr/approve-current-item-edit])
+            #(rfr/dispatch [:cfgr/item-mode-off])
+            nil nil])
         (when (and (:editable? dim-group)
                    (modes-off? work-entity-params))
           [:div.ui.labeled.icon.tiny.positive.basic.button
@@ -225,9 +242,9 @@
   "Вьюшка для таблицы соответствий"
   [rule-table]
   (let [work-entity-params @(rfr/subscribe [:cfgr/work-entity-params])
-        is-worked-on? (entity-worked-on? work-entity-params :rule-table rule-table)
-        work-mode (when is-worked-on? (:work-mode work-entity-params))
-        selected-item (when is-worked-on? (:selected-item work-entity-params))]
+        is-worked-on?      @(rfr/subscribe [:cfgr/entity-worked-on? :rule-table rule-table])
+        work-mode          (when is-worked-on? (:work-mode work-entity-params))
+        selected-item      (when is-worked-on? (:selected-item work-entity-params))]
     [:div.ui.segment
       ; [:div.ui.labeled.tiny.icon.button [:i.add.icon] "Добавить измерение в таблицу"]
       [:table.ui.very.basic.celled.selectable.compact.fixed.small.table
@@ -265,7 +282,38 @@
           [:i.add.icon] "Добавить соответствие"])]))
 
 
-
+(defn header-dim-groups-view
+  "Заголовок для панели Измерения"
+  []
+  (let [work-entity-params @(rfr/subscribe [:cfgr/work-entity-params])
+        add-mode? (and (= :add-group (:work-mode work-entity-params))
+                       (= :dim-group (:entity-type work-entity-params)))]
+    [:div.ui.basic.segment {:on-click #(.stopPropagation %)}
+      [:div.ui.left.floated.header "Группы измерений"]
+      ;; режим создания новой группы
+      (if add-mode?
+        [:div.ui.basic.segment
+          [:div.ui.form
+           [:div.field
+            [:div.label "Название"]
+            [rfr-u/text-input-comp (get-in work-entity-params [:cfgr/work-entity-params
+                                                               :current-in-edit-entity
+                                                               :name])
+                                   #(rfr/dispatch [:cfgr/set-current-dim-group-name
+                                                   (dom/value-of-input %)])
+                                   nil
+                                   "Введите название новой группы измерения"]]
+           [:div.ui.tiny.buttons
+            [:div.ui.button
+              {:on-click #(rfr/dispatch [:cfgr/approve-current-dim-group-edit])}
+              "Добавить"]
+            [:div.ui.button
+               {:on-click #(rfr/dispatch [:cfgr/reset-work-entity-params])}
+               "Отмена"]]]]
+        ;; обычный режим
+        [:div.ui.tiny.icon.labeled.button.header-btn
+          {:on-click (dom/no-propagation #(rfr/dispatch [:cfgr/set-add-dim-group-mode]))}
+          [:i.add.icon] "Добавить группу"])]))
 
 ;; -- Главная вьюшка -------------------------------------
 (defn main-view
@@ -274,16 +322,9 @@
         rule-tables (vals @(rfr/subscribe [:avail-rule-tables]))]
     [:div.ui.grid
       {:on-click #(rfr/dispatch [:cfgr/reset-work-entity-params])}
-      ; [:div.row
-      ;   [:div.column
-      ;     [:div.ui.button {:on-click #(rfr/dispatch [:app/post-transit])}
-      ;                     "testing post"]]]
       [:div.row
         [:div.six.wide.column
-          [:div.ui.basic.segment
-            [:div.ui.left.floated.header "Измерения"]
-            [:div.ui.tiny.icon.labeled.button.header-btn {:style {:visibility "hidden"}}
-              [:i.add.icon] "Добавить измерение"]]
+          [header-dim-groups-view]
           [:div.ui.cards
             (for [dim-group dim-groups]
               ^{:key (:id dim-group)} [dim-group-panel-view dim-group])]]
@@ -291,8 +332,6 @@
           [:div.ui.basic.segment
             [:div.ui.left.floated.header "Таблицы соответствий"]
             [:div.ui.tiny.icon.labeled.button.header-btn
-              ;; скрываем временно
-              {:style {:visibility "hidden"}}
               [:i.add.icon] "Добавить таблицу"]]
           (for [rule-table rule-tables]
             ^{:key (:id rule-table)} [rule-table-view rule-table])]]]))

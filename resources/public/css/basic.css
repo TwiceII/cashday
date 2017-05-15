@@ -224,6 +224,15 @@ i.icon.delete-entry-icon {
   color: #61af61;
 }
 
+.ui.menu a.item.fact-btn {
+  color: rgba(0,0,0,.95);
+}
+
+.ui.menu a.item.plan-btn {
+  color: #78a7e2;
+}
+
+
 .large.remove.link.icon.close-modal-icon {
   float: right;
   margin-top: 3px;
@@ -251,4 +260,23 @@ i.icon.delete-entry-icon {
 .ui.very.basic.table.with-overflow-tds tr td {
   overflow: visible;
 
+}
+
+.header .link-header {
+  cursor: pointer;
+}
+
+
+.ui.fluid.input.text-input-w-buttons input {
+  padding: 5px;
+}
+
+.ui.fluid.input.text-input-w-buttons .icon-buttons-div  {
+  margin-top: 3px;
+}
+
+.ui.fluid.input.text-input-w-buttons .icon-buttons-div i.icon {
+  cursor: pointer;
+  margin-left: 7px;
+  margin-right: 0px;
 }

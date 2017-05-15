@@ -22,3 +22,13 @@
   (fn [_] (rfr/subscribe [:avail-dim-groups]))
   (fn [avail-dim-groups [_ dim-group-id]]
     (get avail-dim-groups dim-group-id)))
+
+;; сортированный список измерений внутри группы
+(rfr/reg-sub
+  :sorted-dims-in
+  :<- [:avail-dim-groups]
+  (fn [avail-dim-groups [_ dim-group-id]]
+    (->> (get avail-dim-groups dim-group-id)
+         :dims
+         vals
+         (sort-by :name))))

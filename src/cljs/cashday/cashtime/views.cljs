@@ -360,7 +360,8 @@
      :display-name "dimension-chooser"
      :render
      (fn [this]
-       (let [[dims dim-group] (dom/args-from-this this)]
+       (let [[dims dim-group] (dom/args-from-this this)
+             sorted-dims-list @(subscribe [:sorted-dims-in (:id dim-group)])]
          [:dim.card
           [:div.ui.mini.fluid.input
            [:div.ui.fluid.search.selection.dropdown
@@ -369,7 +370,7 @@
             [:i.dropdown.icon]
             [:div.default.text (:name dim-group)]
             [:div.menu
-             (for [item (-> dim-group :dims vals)]
+             (for [item sorted-dims-list]
                ^{:key (:id item)} [:div.item {:data-value (:id item)} (:name item)])]]
            ; иконка для очищения поля
            [:i.remove.icon.link.icon-near-dropdown
@@ -410,14 +411,14 @@
         [:div.modal-for-item {:style {:visibility (if show-modal? "visible" "hidden")}}
          [:div.ui.raised.segments
            [:div.ui.top.attached.segment {:style {:cursor "move"}}
-            [:div.ui.header.modal-header "Добавление плановой записи"]
+            [:div.ui.header.modal-header "Добавление записи"]
             [:i.large.remove.link.icon.close-modal-icon
               {:on-click #(dispatch [:cashtime/toggle-modal false])}]]
            [:div.ui.attached.segment
             [:div.ui.tiny.form
-             [:div.three.fields
+             [:div.two.fields
               [:div.field
-                [:label "Поток"]
+                ; [:label "Поток"]
                 [:div.ui.mini.compact.menu
                  [:a.item.inflow-btn
                    {:class (when (= v-flow :inflow) "active")
@@ -429,6 +430,19 @@
                    {:class (when (= v-flow :outflow) "active")
                     :on-click #(dispatch [:cashtime/toggle-current-v-flow :outflow])}
                    "Выплата"]]]
+              [:div.field
+              ;  [:label "Тип"]
+               [:div.ui.mini.compact.menu
+                [:a.item.fact-btn
+                  {:class (when (= v-type :fact) "active")
+                   :on-click #(do
+                                (dispatch [:cashtime/toggle-current-v-type :fact]))}
+                  "Факт"]
+                [:a.item.plan-btn
+                  {:class (when (= v-type :plan) "active")
+                   :on-click #(dispatch [:cashtime/toggle-current-v-type :plan])}
+                  "План"]]]]
+             [:div.two.fields
               [:div.field
                [:label "Сумма"]
                [:input {:type "number"

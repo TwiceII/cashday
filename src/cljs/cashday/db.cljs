@@ -3,7 +3,7 @@
 
 
 (def default-entry-params
-  {:v-type :plan :v-flow :inflow :v-summ 0
+  {:v-type :fact :v-flow :outflow :v-summ 0
    :dims {}
    :date (js/Date.)})
 
@@ -12,7 +12,7 @@
 (def default-db
   {:name "cashday db"
    ;; какая страница открыта
-   :active-window :cashtime ; [:cashtime :configurator]
+   :active-window :configurator ; [:cashtime :configurator]
    ;; данные для модал.окна подтверждения действия
    :approve-action-modal-params {:text "something"}
    ;; загружаемые в данный момент процессы
@@ -64,26 +64,16 @@
 
 
 
-  ;  ;; настройки работы с таблицей соответствий
-  ;  :rule-table-setts {:active-rule-table nil ; текущая табл.соотв-ий
-  ;                     ;; режим работы над таблицей
-  ;                     :work-mode :none ; [:none :add-new-rule :edit-rule]
-  ;                     :selected-rule nil} ; выбранное правило внутри таблицы}
-  ;  ;; правило, над которым происходит редактирование (доб/ред)
-  ;  :current-rule nil
-   ;
-  ;  ;; настройки работы с группами измерений
-  ;  :dim-group-work-setts {:active-dim-group nil ; текущая группа
-  ;                         :work-mode :none ; режим работы [:none :add-dim :edit-dim]
-  ;                         :selected-dim nil}
-  ;  ;; измерение, над которым происходит редактирование (доб/ред)
-  ;  :current-dim nil})
-
 ;; пример настроек для :cfgr/work-entity
 {:entity-type :rule-table ;; тип активной сущности [:rule-table :dim-group]
- :entity-self {} ;; сама сущность, над которой происходит работа
  ;; режим работы над сущностью (могут содержаться кастомные)
  :work-mode :none ; [:none :add-item :edit-item ...]}
+ ;; сущность редактируемая/добавляемая в данный момент
+ :current-in-edit-entity nil
+
+ ;;  параметры для редактирования подсущностей
+ ;; (строки внутри таблицы, измерения в группе)
+ :entity-self {} ;; сама сущность, над которой происходит работа
  ;; выбранный элемент сущности (н-р измерение внутри группы)
  :selected-item nil
  ;; элемент, поля которого изменяют (для добавления и редактирования)

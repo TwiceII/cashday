@@ -6,7 +6,7 @@
             [clj-time.coerce :as ct]))
 
 ;; -- Настройки ---------------------------------------------------------------
-(def db-uri "datomic:sql://cashday-finish?jdbc:postgresql://localhost:5432/cashday-finish?user=datomic&password=datomic")
+(def db-uri "datomic:sql://cashday?jdbc:postgresql://localhost:5432/cashday?user=datomic&password=datomic")
 
 (def config {:uri db-uri})
 

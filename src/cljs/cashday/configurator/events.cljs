@@ -147,8 +147,8 @@
           entity-type (:entity-type work-entity-params)
           entity-self (:entity-self work-entity-params)
           current-item (:current-in-edit-item work-entity-params)
-          post-link (case entity-type :rule-table "/ruletables"
-                                      :dim-group "/dimgroups")
+          post-link (case entity-type :rule-table "/rules"
+                                      :dim-group "/dimensions")
           result-item ((case entity-type
                         :rule-table get-result-rule
                         :dim-group get-result-dimension) (:id entity-self)
@@ -190,3 +190,71 @@
   (if (= :edit-item (get-in db [:cfgr/work-entity-params :work-mode]))
      {:db (assoc-in db [:cfgr/work-entity-params :work-mode] :none)}
      {:dispatch [:cfgr/reset-work-entity-params]}))
+
+
+;; -- CRUD групп измерений ----------------------------------------------------
+;; включить режим добавления новой группы
+(rfr/reg-event-db
+  :cfgr/set-add-dim-group-mode
+  main.events/default-intercs
+  (fn [db _]
+    (assoc db :cfgr/work-entity-params {:entity-type :dim-group
+                                        :current-in-edit-entity {:name ""}
+                                        :work-mode :add-group
+                                        :entity-self nil
+                                        :selected-item nil
+                                        :current-in-edit-item nil})))
+
+;; включить режим редактирования группы
+(rfr/reg-event-db
+  :cfgr/set-edit-dim-group-mode
+  main.events/default-intercs
+  (fn [db [_ dim-group]]
+    (assoc db :cfgr/work-entity-params {:entity-type :dim-group
+                                        :current-in-edit-entity {:id (:id dim-group)
+                                                                 :name (:name dim-group)}
+                                        :work-mode :edit-group
+                                        :entity-self dim-group
+                                        :selected-item nil
+                                        :current-in-edit-item nil})))
+
+;; редактировать название текущей выделенной группы
+(rfr/reg-event-db
+  :cfgr/set-current-dim-group-name
+  main.events/default-intercs
+  (fn [db [_ value]]
+    (assoc-in db [:cfgr/work-entity-params :current-in-edit-entity :name] value)))
+
+;; подтвердить добавление/редактирование группы
+(rfr/reg-event-fx
+  :cfgr/approve-current-dim-group-edit
+  main.events/default-intercs
+  (fn [{:keys [db]} _]
+    (let [work-entity-params (:cfgr/work-entity-params db)
+          current-entity (:current-in-edit-entity work-entity-params)]
+      {:http-xhrio (rfr-u/http-xhrio-post "/dimgroups"
+                                          current-entity
+                                          :cfgr/success-xhrio-dim-group
+                                          (case (:work-mode work-entity-params)
+                                            :add-group "Группа измерений добавлена"
+                                            :edit-group "Группа измерений отредактирована")
+                                          "Не удалось выполнить операцию")})))
+
+;; при успешном добавлении/редактировании/удалении группы
+(rfr/reg-event-fx
+  :cfgr/success-xhrio-dim-group
+  main.events/default-intercs
+  (fn [{:keys [db]} [_ val]]
+    {:dispatch-n [[:app/load-avail-dim-groups]
+                  [:cfgr/reset-work-entity-params]]}))
+
+
+;; удаление группы
+(rfr/reg-event-fx
+  :cfgr/delete-dim-group
+  main.events/default-intercs
+  (fn [{:keys [db]} [_ dim-group]]
+    {:http-xhrio (rfr-u/http-xhrio-delete "/dimgroup"
+                                          (:id dim-group)
+                                          :cfgr/success-xhrio-dim-group
+                                          "Группа удалена")}))

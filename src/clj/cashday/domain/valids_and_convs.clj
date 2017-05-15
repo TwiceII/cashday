@@ -52,6 +52,14 @@
             %)))))
 
 
+(defn check-dim-group
+  [dim-group]
+  (let [errors []]
+    (-> errors
+        (#(if (cljstr/blank? (:name dim-group))
+            (conj % "Необходимо ввести название")
+            %)))))
+
 (defn check-rule-delete
   "Проверить возможность удаления правила"
   [uuid]
@@ -60,6 +68,11 @@
 
 (defn check-dimension-delete
   "Проверить возможность удаления измерения"
+  [uuid]
+  [])
+
+(defn check-dim-group-delete
+  "Проверить возможность удаления группы измерений"
   [uuid]
   [])
 
@@ -91,10 +104,20 @@
 
 ;; -- Получение транзакций из пришедших данных --------------------------------
 (defn dimension->tx
+  "Измерение (добавление или редактирование)"
   [conn dimension]
   [{:dimension/uuid (or (:id dimension) (d/squuid))
     :dimension/name (:name dimension)
     :dimension/group [:dim-group/uuid (:dim-group-id dimension)]}])
+
+
+(defn dim-group->tx
+  "Группа измерений (добавление или редактирование)"
+  [conn dim-group]
+  [{:dim-group/uuid (or (:id dim-group) (d/squuid))
+    :dim-group/name (:name dim-group)
+    :dim-group/editable? true}])
+
 
 
 (defn reset-rule-from-dims-tx
@@ -151,6 +174,11 @@
 (defn delete-dimension->tx
   [conn uuid]
   (du/retract-entity-tx :dimension/uuid uuid))
+
+
+(defn delete-dim-group->tx
+  [conn uuid]
+  (du/retract-entity-tx :dim-group/uuid uuid))
 
 
 (defn delete-entries->txs

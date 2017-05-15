@@ -4,6 +4,7 @@
             [io.pedestal.http :as http]
             [cashday.webservice.main :as webservice]
             [cashday.domain.datomic-utils :as du]
+            [cashday.domain.model :as m]
             [cashday.domain.file-data-import :as fd-import]))
 
 (defn service-map-dev
@@ -11,7 +12,7 @@
   [service-map-prod]
   (-> service-map-prod
       (assoc :env          :dev
-             ::http/port   8890
+             ::http/port   8891
              ::http/join?  false)))
 
 
@@ -64,3 +65,9 @@
   "Инициализация БД, загрузка данных с csv файлов"
   []
   (fd-import/init-db-import (:uri du/config)))
+
+
+(defn init-db-from-scratch
+  "Инициализация БД с нуля"
+  []
+  (m/init-from-scratch (:uri du/config)))

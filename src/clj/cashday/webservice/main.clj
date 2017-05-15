@@ -19,9 +19,17 @@
       ["/dimgroups"    :get    (intc/transit-get :dimgroups model/get-all-dim-groups)
                        :route-name :dimgroups]
 
-      ["/dimgroups"    :post   (intc/transit-d-transact v-n-c/check-dimension
-                                                        v-n-c/dimension->tx)
+      ["/dimgroups"    :post   (intc/transit-d-transact v-n-c/check-dim-group
+                                                        v-n-c/dim-group->tx)
                        :route-name :dimgroups-post]
+
+      ["/dimgroup"     :delete (intc/transit-d-transact v-n-c/check-dim-group-delete
+                                                        v-n-c/delete-dim-group->tx)
+                       :route-name :dimgroup-delete]
+
+      ["/dimensions"   :post   (intc/transit-d-transact v-n-c/check-dimension
+                                                        v-n-c/dimension->tx)
+                       :route-name :dimensions-post]
 
       ["/dimension"    :delete (intc/transit-d-transact v-n-c/check-dimension-delete
                                                         v-n-c/delete-dimension->tx)
@@ -30,9 +38,9 @@
       ["/ruletables"   :get    (intc/transit-get :ruletables model/get-all-rule-tables)
                        :route-name :ruletables]
 
-      ["/ruletables"   :post   (intc/transit-d-transact v-n-c/check-rule
+      ["/rules"        :post   (intc/transit-d-transact v-n-c/check-rule
                                                         v-n-c/rule->tx)
-                       :route-name :ruletables-post]
+                       :route-name :rules-post]
 
       ["/rule"         :delete (intc/transit-d-transact v-n-c/check-rule-delete
                                                         v-n-c/delete-rule->tx)

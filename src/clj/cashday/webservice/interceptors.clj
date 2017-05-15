@@ -43,6 +43,9 @@
   "Кастомный инт. для обработки результата в transit-get
    т.к. pedestal-овская ф-ия http/transit-json-body с Jetty возвращает долго результат"
   http/transit-json-body)
+  ;; уже неактуально, т.к. http/transit-json-body нормально
+  ;; работает при логах уровне INFO, а также кастомный метод
+  ;; неправильно возвращает кодировку в некоторых символах
   ; (intrc.helpers/on-response
   ;   ::transit-body-custom
   ;   (fn [response]

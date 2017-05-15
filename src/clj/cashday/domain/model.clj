@@ -116,28 +116,28 @@
                                        key-idents)))
 
 
-(def default-dim-groups
-  "Группы измерений по умолчанию"
-  [{:dim-group/uuid (d/squuid)
-    :dim-group/name "Контрагенты"
-    :dim-group/editable? false
-    :dim-group/css-class "dim-1"
-    :dim-group/order-index 1}
-   {:dim-group/uuid (d/squuid)
-    :dim-group/name "Договоры"
-    :dim-group/editable? false
-    :dim-group/css-class "dim-2"
-    :dim-group/order-index 2}
-   {:dim-group/uuid (d/squuid)
-    :dim-group/name "Счета"
-    :dim-group/editable? false
-    :dim-group/css-class "dim-3"
-    :dim-group/order-index 3}
-   {:dim-group/uuid (d/squuid)
-    :dim-group/name "Статьи"
-    :dim-group/editable? true
-    :dim-group/css-class "dim-4"
-    :dim-group/order-index 4}])
+; (def default-dim-groups
+;   "Группы измерений по умолчанию"
+;   [{:dim-group/uuid (d/squuid)
+;     :dim-group/name "Контрагенты"
+;     :dim-group/editable? false
+;     :dim-group/css-class "dim-1"
+;     :dim-group/order-index 1}
+;    {:dim-group/uuid (d/squuid)
+;     :dim-group/name "Договоры"
+;     :dim-group/editable? false
+;     :dim-group/css-class "dim-2"
+;     :dim-group/order-index 2}
+;    {:dim-group/uuid (d/squuid)
+;     :dim-group/name "Счета"
+;     :dim-group/editable? false
+;     :dim-group/css-class "dim-3"
+;     :dim-group/order-index 3}
+;    {:dim-group/uuid (d/squuid)
+;     :dim-group/name "Статьи"
+;     :dim-group/editable? true
+;     :dim-group/css-class "dim-4"
+;     :dim-group/order-index 4}])
 
 
 (def dim-group-name->uuid
@@ -354,8 +354,8 @@
     (du/transact-and-return conn (datofu.all/schema-tx))
     ;; загружаем все схемы
     (transact-init-schemas conn)
-    ;; создаем начальные группы измерений
-    (du/transact-and-return conn default-dim-groups)
+    ; ;; создаем начальные группы измерений
+    ; (du/transact-and-return conn default-dim-groups)
     ;; возвращаем новое подключение
     conn))
 

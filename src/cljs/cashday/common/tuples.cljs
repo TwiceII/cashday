@@ -137,7 +137,7 @@
 (defn update-plain-entry-dims-for-avails
   "Обновить измерения внутри плоских данных чтобы сгруппировать по доступным измерениям"
   [plain-entry active-dim-group-ids]
-  (update plain-entry :dims (fn[t](select-keys t active-dim-group-ids))))
+  (update plain-entry :dims (fn [t] (select-keys t active-dim-group-ids))))
 
 (defn plain-entries->entries
   "Конвертировать плоские данные по записям в форматированные"
@@ -148,12 +148,17 @@
                  (update-plain-entry-dims-for-avails active-dim-group-ids)))
        (reduce (fn [m e]
                  (if-not (u/nil-or-empty? (:dims e))
-                   (update-in m [(:dims e) (:date e) (:v-type e)]
-                              + (or (:v-summ e) 0))
+                   (-> m
+                       (update-in [(:dims e) :d-values (:date e) (:v-type e)]
+                                  + (or (:v-summ e) 0))
+                       ;; если есть измерения, созданные правилами
+                       (assoc-in [(:dims e) :ruled-dims] (:ruled-dims e)))
                    m))
                {})
-       (reduce-kv (fn [vc tuple d-values]
-                   (conj vc {:tuple tuple :date-values d-values}))
+       (reduce-kv (fn [vc tuple vals]
+                   (conj vc {:tuple tuple
+                             :ruled-dims (:ruled-dims vals)
+                             :date-values (:d-values vals)}))
                 [])))
 
 ;; (plain-entries->entries test-plain-entries :by-month [2])

@@ -185,7 +185,9 @@
   [conn entry-params]
   (du/retract-entities-txs
     (model/all-entry-eids-for conn
-                              (:dims entry-params)
+                              ;; убираем те измерения, к-ые были получены из правил
+                              (u/remove-keys (:dims entry-params)
+                                             (:ruled-dims entry-params))
                               (:active-dim-groups entry-params)
                               (:v-flow entry-params)
                               (:v-type entry-params)

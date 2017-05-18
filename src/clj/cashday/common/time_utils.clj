@@ -218,6 +218,8 @@
   [iso-date]
   (->> iso-date
        (tf/parse (tf/with-zone iso-w-ms-formatter (t/time-zone-for-offset +6)))
+       ;; берем только дату без времени
+       (#(t/date-time (t/year %) (t/month %) (t/day %)))
        (tc/to-date)))
 
 

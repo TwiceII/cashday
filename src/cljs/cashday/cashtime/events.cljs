@@ -87,7 +87,6 @@
   :cashtime/success-post-item
   main.events/default-intercs
   (fn [{:keys [db]} [_ val]]
-    (println val)
     {:dispatch [:app/load-plain-entries]
      :db (assoc db :show-modal? false)}))
 
@@ -120,8 +119,11 @@
 ;; выделить ячейку
 (rfr/reg-event-db
   :cashtime/select-entry-cell
-  (fn [db [_ dims d flow-type]]
-    (assoc db :selected-cell-params {:date d :dims dims :flow-type flow-type})))
+  (fn [db [_ dims ruled-dims d flow-type]]
+    (assoc db :selected-cell-params {:date d
+                                     :dims dims
+                                     :ruled-dims ruled-dims
+                                     :flow-type flow-type})))
 
 ;; при успешном удалении записей
 (rfr/reg-event-fx
@@ -141,6 +143,7 @@
                          :d-group-mode (get-in db [:date-params :grouping-mode])
                          :active-dim-groups (:active-dim-group-ids db)
                          :date (:date sel-cell-params)
+                         :ruled-dims (:ruled-dims sel-cell-params)
                          :dims (:dims sel-cell-params)}]
       {:http-xhrio (rfr-u/http-xhrio-delete "/plainentry"
                                             delete-params

@@ -82,21 +82,24 @@
        #(rfr/dispatch [:cfgr/reset-work-entity-params])
        nil
        nil]]
-    [:div.header
-     [:span.link-header
-      {:on-click (dom/no-propagation
-                   #(rfr/dispatch [:cfgr/set-edit-dim-group-mode dim-group]))}
-      (:name dim-group)]
-     [:i.right.floated.trash.link.icon
-      {:title "Удалить группу"
-       :on-click #(rfr/dispatch
-                    [:app/show-approve-modal {:text "Удалить группу?"
-                                              :approve-text "Удалить"
-                                              :cancel-text "Не удалять"
-                                              :approve-fn
-                                               (fn [_]
-                                                 (rfr/dispatch [:cfgr/delete-dim-group dim-group]))}])}]]))
-
+    (if (:editable? dim-group)
+      [:div.header
+       [:span.link-header
+        {:on-click (dom/no-propagation
+                     #(rfr/dispatch [:cfgr/set-edit-dim-group-mode dim-group]))}
+        (:name dim-group)]
+       [:i.right.floated.trash.link.icon
+        {:title "Удалить группу"
+         :on-click #(rfr/dispatch
+                      [:app/show-approve-modal {:text "Удалить группу?"
+                                                :approve-text "Удалить"
+                                                :cancel-text "Не удалять"
+                                                :approve-fn
+                                                 (fn [_]
+                                                   (rfr/dispatch [:cfgr/delete-dim-group dim-group]))}])}]]
+      ;; те, которые нельзя редактировать
+      [:div.header
+       (:name dim-group)])))
 
 (defn dim-group-panel-view
   "Вьюшка для группы измерений"
@@ -140,48 +143,19 @@
 ;;;;
 ;;;; Вьюшки для таблиц соответствий
 ;;;;
-(defn dimension-dropdown-view
-  [dim-group dim on-change-fn]
-  (js/console.log "dim-group: " dim-group)
-  (reagent/create-class
-    {:component-did-mount #(.dropdown (dom/$find-in-rdom-node % ".ui.dropdown")
-                                      #js {:onChange (fn [val text _]
-                                                       (on-change-fn val))
-                                           :fullTextSearch true
-                                           :forceSelection false})
-     :display-name "dimension-dropdown"
-     :render
-     (fn [this]
-        (let [[dim-group dim] (dom/args-from-this this)]
-          [:div.ui.fluid.small.input
-            [:div.ui.fluid.search.selection.dropdown
-              [:input {:type "hidden"
-                       :default-value (:id dim)}]
-              [:i.dropdown.icon]
-              [:div.default.text (:name dim-group)]
-              [:div.menu
-                (for [item (-> dim-group :dims vals)]
-                  ^{:key (:id item)} [:div.item {:data-value (:id item)} (:name item)])]]
-            ; иконка для очищения поля
-            [:i.remove.icon.link.icon-near-dropdown
-             {:title "Очистить поле"
-              :on-click
-              #(let [el (dom/$find-in-rdom-node this ".ui.dropdown")]
-                  ;; TODO: логика другая, нужно очищать значение в app-db
-                  (.dropdown el "clear"))}]]))}))
-
-
 (defn dropdown-for-dim-view
   "Вьюшка с дропдауном для группы измерения или конкретного измерения
   (ищется по group-id, применяется для еще невыбр. значений, н-р добавления)"
   [dim dim-group-id]
   (let [group-id (or (:group-id dim) dim-group-id)
         dim-group @(rfr/subscribe [:dim-group-by-id group-id])]
-    [dimension-dropdown-view dim-group dim
-                             (fn [dim-id-str]
-                               (rfr/dispatch
-                                 [:cfgr/set-current-rule-dim dim-group-id
-                                                             dim-id-str]))]))
+    [rfr-u/dropdown-for-dim-group-comp dim-group
+                                       (:id dim)
+                                       "small"
+                                       (fn [dim-id-str]
+                                         (rfr/dispatch
+                                           [:cfgr/set-current-rule-dim dim-group-id
+                                                                       dim-id-str]))]))
 
 
 (defn rule-dim-td-view

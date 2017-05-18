@@ -5,7 +5,8 @@
               [cashday.common.utils :as u]
               [cashday.common.tuples :as tp]
               [cashday.common.dom-utils :as dom]
-              [cashday.common.moment-utils :as mu]))
+              [cashday.common.moment-utils :as mu]
+              [cashday.common.reframe-utils :as rfr-u]))
 
 
 ;; -- Функции для получения данных для вьюшек ----------------------------------------------------
@@ -30,9 +31,10 @@
 
 (defn is-selected-cell?
   "Проверка, что ячейка записи является выбранной"
-  [sel-cell-params d dims flow-type]
+  [sel-cell-params d dims ruled-dims flow-type]
   (and (= (:date sel-cell-params) d)
        (= (:dims sel-cell-params) dims)
+       (= (:ruled-dims sel-cell-params) ruled-dims)
        (= (:flow-type sel-cell-params) flow-type)))
 
 
@@ -124,14 +126,17 @@
   "Вьюшка для вывода суммы записи
   deletable? - возможность удаления"
   [value flow-type selected? deletable?]
-  (let [delete-fn  (dom/no-propagation
-                     #(dispatch [:app/show-approve-modal
-                                 {:text "Удалить запись?"
-                                  :approve-text "Удалить"
-                                  :cancel-text "Не удалять"
-                                  :approve-fn
-                                   (fn [_]
-                                     (dispatch [:cashtime/delete-entry-value :plan]))}]))]
+  (let [delete-fn  (fn [type]
+                     (dom/no-propagation
+                      #(dispatch [:app/show-approve-modal
+                                  {:text "Удалить запись?"
+                                   :approve-text "Удалить"
+                                   :cancel-text "Не удалять"
+                                   :approve-fn
+                                    (fn [_]
+                                      (dispatch [:cashtime/delete-entry-value type]))}])))
+        delete-plan-fn (delete-fn :plan)
+        delete-fact-fn (delete-fn :fact)]
       (fn [value flow-type selected? deletable?]
         (if (not (nil? value))
           [:div.value-cell
@@ -141,25 +146,29 @@
                         :inflow "positive"
                         :outflow "negative"
                         "")}
-              (u/money-str-with-zero (:fact value))])
+              (u/money-str-with-zero (:fact value))
+              (when (and selected? deletable?)
+               [:i.link.remove.icon.delete-entry-icon
+                {:title "Удалить запись"
+                 :on-click delete-fact-fn}])])
            (when (and (:plan value) (not= 0 (:plan value)))
              [:span.plan-value
               (u/money-str-with-zero (:plan value))
               (when (and selected? deletable?)
                [:i.link.remove.icon.delete-entry-icon
                 {:title "Удалить запись"
-                 :on-click delete-fn}])])]
+                 :on-click delete-plan-fn}])])]
           [:div.value-cell " "]))))
 
 
 
 (defn value-cell-td
   "Ячейка со значением"
-  [dims d value flow-type current-d? selected?]
+  [dims ruled-dims d value flow-type current-d? selected?]
   (let [on-click-fn #(do
-                       (dispatch [:cashtime/select-entry-cell dims d flow-type])
+                       (dispatch [:cashtime/select-entry-cell dims ruled-dims d flow-type])
                        (.stopPropagation %))]
-    (fn [dims d value flow-type current-d? selected?]
+    (fn [dims ruled-dims d value flow-type current-d? selected?]
       ; (println "update value-cell")
       [:td {:class (str (when current-d? "today-cell ")
                         (when selected?  "selected-cell "))
@@ -169,12 +178,13 @@
 
 (defn values-row-tr
   "Строка со значениями"
-  [dims dates date-values flow-type d-group-mode]
-  (let [row-sel-cell-params @(subscribe [:row-sel-cell-params dims flow-type])]
+  [dims ruled-dims dates date-values flow-type d-group-mode]
+  (let [row-sel-cell-params @(subscribe [:row-sel-cell-params dims ruled-dims flow-type])]
     ; (println "update values-row")
     [:tr
      (for [d dates]
        ^{:key d} [value-cell-td dims
+                                ruled-dims
                                 d
                                 (get date-values d)
                                 flow-type
@@ -183,6 +193,7 @@
                                   (is-selected-cell? (:sel-cell-params row-sel-cell-params)
                                                      d
                                                      dims
+                                                     ruled-dims
                                                      flow-type)
                                   false)])]))
 
@@ -199,14 +210,11 @@
   []
   (reagent/create-class
     {:component-did-mount #(do
-                            (println ">>>>>> MOUNTED >>>>>>")
                             (dispatch [:app/entries-update-complete]))
      :component-will-update #(do
-                              (println "<<<<< BEFORE UPDATE <<<<<<")
                               (dispatch-sync [:app/entries-update-start]))
 
      :component-did-update #(do
-                             (println ">>>>>> UPDATED >>>>>>")
                              (dispatch [:app/entries-update-complete]))
      :reagent-render
       (fn []
@@ -219,8 +227,9 @@
               remains-on-start     @(subscribe [:remains-on-start])
               remains-on-end       @(subscribe [:remains-on-end])
               rows-fn (fn [flow-kw flow-entries]
-                        (for [{:keys [tuple date-values]} flow-entries]
+                        (for [{:keys [tuple ruled-dims date-values]} flow-entries]
                           ^{:key tuple} [values-row-tr tuple
+                                                       ruled-dims
                                                        dates
                                                        date-values
                                                        flow-kw
@@ -346,41 +355,6 @@
 
 ;; -- Модальное окно добавления/редактирования записи ----------------------------------
 
-(defn dimension-chooser
-  "Меню с дропдауном для выбора измерения"
-  [dims dim-group]
-  (reagent/create-class
-    {:component-did-mount #(.dropdown (dom/$find-in-rdom-node % ".ui.dropdown")
-                                      #js {:onChange (fn [val text _]
-                                                       (when val
-                                                         (dispatch [:cashtime/change-modal-dim-to
-                                                                    (:id dim-group) val])))
-                                           :fullTextSearch true
-                                           :forceSelection false})
-     :display-name "dimension-chooser"
-     :render
-     (fn [this]
-       (let [[dims dim-group] (dom/args-from-this this)
-             sorted-dims-list @(subscribe [:sorted-dims-in (:id dim-group)])]
-         [:dim.card
-          [:div.ui.mini.fluid.input
-           [:div.ui.fluid.search.selection.dropdown
-            [:input {:type "hidden"
-                     :default-value (if-let [d (get dims (:id dim-group))] d "")}]
-            [:i.dropdown.icon]
-            [:div.default.text (:name dim-group)]
-            [:div.menu
-             (for [item sorted-dims-list]
-               ^{:key (:id item)} [:div.item {:data-value (:id item)} (:name item)])]]
-           ; иконка для очищения поля
-           [:i.remove.icon.link.icon-near-dropdown
-            {:title "Очистить поле"
-             :on-click
-             #(let [el (dom/$find-in-rdom-node this ".ui.dropdown")]
-                          ;; TODO: логика другая, нужно очищать значение в app-db
-                   (.dropdown el "clear"))}]]]))}))
-
-
 (def t1 (js-obj "pk" nil))
 
 
@@ -459,7 +433,13 @@
 
             [:div.ui.three.stackable.cards.dim-chooser-list
              (for [dim-group all-dim-groups]
-               ^{:key (:id dim-group)} [dimension-chooser dims dim-group])]]
+               ^{:key (:id dim-group)} [:dim.card
+                                        [rfr-u/dropdown-for-dim-group-comp
+                                          dim-group
+                                          (if-let [d (get dims (:id dim-group))] d "")
+                                          "mini"
+                                          #(dispatch [:cashtime/change-modal-dim-to
+                                                       (:id dim-group) %])]])]]
            [:div.ui.bottom.attached.secondary.right.aligned.segment
             [:div.ui.deny.button
               {:on-click #(dispatch [:cashtime/toggle-modal false])}

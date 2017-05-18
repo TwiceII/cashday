@@ -1,6 +1,7 @@
 (ns cashday.domain.datomic-utils
   "Функции и утилиты для работы с Datomic"
   (:require [datomic.api :as d]
+			[io.pedestal.log :as log]
             [com.stuartsierra.component :as component]
             [clj-time.core :as t]
             [clj-time.coerce :as ct]))
@@ -14,10 +15,12 @@
 ;; -- Служебные функции -------------------------------------------------------
 (defn transact-and-return
   "Выполнить транзакцию и вернуть результат"
-  [conn txs]
-  (println "txs: ")
-  (println txs)
-  (deref (d/transact conn txs)))
+  [conn txs-coll]
+  (let [txs (into [] txs-coll)] ;; переводим в векторную форму
+    (log/debug :msg (str "transaction: " txs))
+    (println "txs: ")
+    (println txs)
+    (deref (d/transact conn txs))))
 
 
 

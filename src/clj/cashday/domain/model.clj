@@ -206,6 +206,34 @@
        (map #(-> % first (get ":db/id")))))
 
 
+; (def entry-params
+;   {:v-flow :outflow,
+;    :v-type :fact,
+;    :d-group-mode :by-day,
+;    :active-dim-groups #{#uuid "59199fa0-8693-43c7-a6ba-de21b3de8408" #uuid "59199f7e-6b6c-400b-a96d-57c39ef4c9b9"},
+;    :date "2017-05-15T00:00:00Z",
+;    :ruled-dims '(),
+;    :dims {#uuid "59199f7e-6b6c-400b-a96d-57c39ef4c9b9" #uuid "59199f83-8989-4298-bfa6-619774f072ab"}})
+;
+;
+; (all-entry-eids-for (d/connect du/db-uri)
+;                     (u/remove-keys (:dims entry-params)
+;                                    (:ruled-dims entry-params))
+;                     (:active-dim-groups entry-params)
+;                     (:v-flow entry-params)
+;                     (:v-type entry-params)
+;                     (tu/parse-to-jdate (:date entry-params))
+;                     (:d-group-mode entry-params))
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -358,6 +386,9 @@
     ; (du/transact-and-return conn default-dim-groups)
     ;; возвращаем новое подключение
     conn))
+
+; (let [conn (d/connect du/db-uri)]
+;   (du/transact-and-return conn [[:db/retractEntity 17592186045444]]))
 
 
 ;; -- Функции для инициализации, загрузки данных и т.д -------------------------

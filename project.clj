@@ -5,7 +5,11 @@
                  [com.stuartsierra/component "0.3.2"]
                  [org.postgresql/postgresql "9.3-1102-jdbc41"]
                  [com.datomic/datomic-pro "0.9.5561"
-                  :exclusions [com.google.guava/guava]]
+                  :exclusions [com.google.guava/guava
+                               org.jboss.logging/jboss-logging
+                               org.slf4j/slf4j-api
+                               org.slf4j/slf4j-nop
+                               org.slf4j/jul-to-slf4j]]
                  [clj-time "0.13.0"]
                  [io.pedestal/pedestal.service "0.5.2"]
                  [io.pedestal/pedestal.jetty "0.5.2"]

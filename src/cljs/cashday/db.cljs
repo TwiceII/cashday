@@ -28,7 +28,8 @@
    ;; выбранная ячейка - опр-ся по дате, измерениям и типу потока
    :selected-cell-params {:date nil ;; iso-date
                           :flow-type nil ;; [:inflow :outflow]
-                          :dims []}
+                          :dims []
+                          :ruled-dims []}
 
    ;; доступные группы измерений
    :avail-dim-groups nil

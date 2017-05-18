@@ -2,7 +2,14 @@
     (:require [re-frame.core :refer [reg-sub subscribe]]
               [cashday.db :refer [default-db]]
               [cashday.common.tuples :as tp]
+              [cashday.common.utils :as u]
               [cashday.common.moment-utils :as mu]))
+(defn dims-diff
+  "Найти добавленные после правил id групп измерений"
+  [d-bef d-aft]
+  (let [k1 (keys d-bef)
+        k2 (keys d-aft)]
+    (filter #(not (u/in? k1 %)) k2)))
 
 ;; -- Функции вычисляющие значения, необходимые подпискам ---------------------
 (defn current-entries-for-flow
@@ -15,12 +22,19 @@
               search-dim-str
               sort-dim-params]]
   (let [search-tuple (when search-dim-str (tp/get-search-tuple-with-substr avail-dim-groups search-dim-str))
-        ;; фильтруем все плоские данные по поисковому слову
-        with-dims-entries (map (fn [pe]
-                                 (update pe :dims #(tp/dims->new-ruled-dims % avail-rule-tables)))
-                               plain-entries)
-        filtered-plain-entries (tp/filter-plain-entries with-dims-entries search-tuple)
         ;; применяем к каждому измерению правила соответствий
+        with-dims-entries (map (fn [pe]
+                                 (let [source-dims (:dims pe)
+                                       new-dims    (tp/dims->new-ruled-dims source-dims avail-rule-tables)
+                                       diff-dims   (dims-diff source-dims new-dims)]
+                                   (-> pe
+                                       (assoc :dims new-dims)
+                                       ;; доб. :ruled-dims - список добавленных из правил измерений
+                                       (assoc :ruled-dims diff-dims))))
+                               plain-entries)
+        ;; фильтруем все плоские данные по поисковому слову
+        filtered-plain-entries (tp/filter-plain-entries with-dims-entries search-tuple)
+        ;; результирующий список плоских данных
         result-plain-entries filtered-plain-entries]
     (as-> result-plain-entries x
           (filter #(= (:v-flow %) flow-type) x)
@@ -78,8 +92,9 @@
 
 (defn is-selected-row?
   "Проверка, что внутри строки есть выбранная ячейка"
-  [sel-cell-params dims flow-type]
+  [sel-cell-params dims ruled-dims flow-type]
   (and (= (:dims sel-cell-params) dims)
+       (= (:ruled-dims sel-cell-params) ruled-dims)
        (= (:flow-type sel-cell-params) flow-type)))
 
 
@@ -255,10 +270,11 @@
 
 (reg-sub
   :row-sel-cell-params
-  (fn [db [_ dims flow-type]]
+  (fn [db [_ dims ruled-dims flow-type]]
     (let [sel-cell-params (:selected-cell-params db)
           row-selected?   (is-selected-row? sel-cell-params
                                             dims
+                                            ruled-dims
                                             flow-type)]
       (if row-selected?
         {:selected? true

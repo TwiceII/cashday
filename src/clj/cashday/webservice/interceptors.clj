@@ -86,9 +86,10 @@
   [process-data-fn]
   {:name ::process-transit-data
    :enter (fn [context]
-            (if-let [data (get-in context [:request :transit-params])]
-              (assoc context :processed-transit-data (process-data-fn data))
-              context))
+            (let [conn (:datomic-conn context)]
+              (if-let [data (get-in context [:request :transit-params])]
+                (assoc context :processed-transit-data (process-data-fn conn data))
+                context)))
    :leave (fn [context]
             (if-let [pr-data (:processed-transit-data context)]
               (assoc context :response
@@ -139,9 +140,9 @@
    {:name ::transit-echo
     :leave (fn [context]
               (let [transit-data (get-in context [:request :transit-params])]
-                ; (println ">>>>>>>>>>>>>>>>>>>>>>>>>>>>")
-                ; (println transit-data)
-                ; (println ">>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                (println ">>>>>>>>>>>>>>>>>>>>>>>>>>>>")
+                (println transit-data)
+                (println ">>>>>>>>>>>>>>>>>>>>>>>>>>>>")
                 (assoc context :response
                   (ring-resp/response {:result :success
                                        :data transit-data}))))}])

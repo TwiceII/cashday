@@ -84,6 +84,10 @@
   :default-process-xhrio
   default-intercs
   (fn [_ [_ success-event-k success-title failure-title value]]
+    (js/console.log "======================================")
+    (js/console.log "process xhrio value: ")
+    (js/console.log value)
+    (js/console.log "======================================")
     (if (= :failure (:result value))
       (let [errors-str (str "<ul>"
                             (reduce (fn [e-str error]

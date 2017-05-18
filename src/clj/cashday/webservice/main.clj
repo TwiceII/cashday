@@ -65,7 +65,7 @@
    ::http/type           :jetty
    ::http/resource-path  "/public"
    ::http/secure-headers nil
-   ::http/port           81})
+   ::http/port           83})
 
 ;; настройки веб-сервиса для dev находятся в dev/user.clj
 

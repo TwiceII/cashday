@@ -12,7 +12,7 @@
 (def default-db
   {:name "cashday db"
    ;; какая страница открыта
-   :active-window :configurator ; [:cashtime :configurator]
+   :active-window :cashtime ; [:cashtime :configurator]
    ;; данные для модал.окна подтверждения действия
    :approve-action-modal-params {:text "something"}
    ;; загружаемые в данный момент процессы

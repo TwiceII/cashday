@@ -58,48 +58,22 @@
                        :route-name :plainentry-delete]}))
 
 
-(def service-map-prod
+(defn service-map-prod
   "Настройки веб-сервиса (продакшен)"
+  [port]
   {:env                  :prod
    ::http/routes         routes
    ::http/type           :jetty
    ::http/resource-path  "/public"
-   ::http/secure-headers nil
-   ::http/port           83})
-
+   ::http/port           port
+   ::http/secure-headers nil})
 ;; настройки веб-сервиса для dev находятся в dev/user.clj
 
 
-
-
-(defn start []
-  "Запуск веб-сервиса для продакшена"
-  (http/start (http/create-server service-map-prod)))
-
-
-;; -- Interactive development in repl -----------------------------------------
-; (defonce server (atom nil))
-;
-; (defn start-dev []
-;   (reset! server
-;           (http/start (http/create-server service-map-dev))))
-;
-;
-; (defn stop-dev []
-;   (http/stop @server))
-;
-;
-; (defn restart []
-;   (stop-dev)
-;   (start-dev))
-
-
-;; -- Component ------------------
+;; -- Компонент для системы ------------------
 (defn test?
   [service-map]
   (= :test (:env service-map)))
-
-
 
 
 (defrecord PedestalComponent

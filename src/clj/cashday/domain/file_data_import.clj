@@ -8,6 +8,7 @@
             [clojure.data.csv :as csv]
             [clojure.java.io :as io]
             [clojure.string :as cljstr]
+            [clojure.edn :as edn]
             [com.stuartsierra.component :as component]))
 
 (defn csv->data

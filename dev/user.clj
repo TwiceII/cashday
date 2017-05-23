@@ -5,31 +5,42 @@
             [cashday.webservice.main :as webservice]
             [cashday.domain.datomic-utils :as du]
             [cashday.domain.model :as m]
-            [cashday.domain.file-data-import :as fd-import]))
+            [cashday.domain.file-data-import :as fd-import]
+            [cashday.domain.data-import :as d-imp]
+            [clojure.edn :as edn]))
+
+
+(defn get-project-config
+  "Получить настройки проекта"
+  []
+  (edn/read-string (slurp "config/project-config.edn")))
+
 
 (defn service-map-dev
   "Настройки веб-сервиса (dev)"
-  [service-map-prod]
+  [service-map-prod port]
   (-> service-map-prod
       (assoc :env          :dev
-             ::http/port   8891
+             ::http/port   port
              ::http/join?  false)))
 
 
 (defn dev-system
   []
   (println "dev system")
-  (component/system-map
-    :service-map (service-map-dev webservice/service-map-prod)
-    :datomic-config du/config
-    :datomic-db
-    (component/using
-      (du/new-datomic-component)
-      [:datomic-config])
-    :pedestal
-    (component/using
-      (webservice/new-pedestal-component)
-      [:service-map :datomic-db])))
+  (let [config (get-project-config)]
+    (component/system-map
+      :service-map (service-map-dev webservice/service-map-prod
+                                    (:dev-web-port config))
+      :datomic-config {:uri (:db-uri config)}
+      :datomic-db
+      (component/using
+        (du/new-datomic-component)
+        [:datomic-config])
+      :pedestal
+      (component/using
+        (webservice/new-pedestal-component)
+        [:service-map :datomic-db]))))
 
 
 (def system nil)
@@ -64,10 +75,13 @@
 (defn init-db-import
   "Инициализация БД, загрузка данных с csv файлов"
   []
-  (fd-import/init-db-import (:uri du/config)))
+  (let [config (get-project-config)]
+    (d-imp/process-import (:db-uri config)
+                          (:fileupload-config config))))
 
 
 (defn init-db-from-scratch
   "Инициализация БД с нуля"
   []
-  (m/init-from-scratch (:uri du/config)))
+  (let [config (get-project-config)]
+    (m/init-from-scratch (:db-uri config))))

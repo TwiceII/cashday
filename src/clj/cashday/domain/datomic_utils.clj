@@ -1,15 +1,10 @@
 (ns cashday.domain.datomic-utils
   "Функции и утилиты для работы с Datomic"
   (:require [datomic.api :as d]
-			[io.pedestal.log :as log]
+            [io.pedestal.log :as log]
             [com.stuartsierra.component :as component]
             [clj-time.core :as t]
             [clj-time.coerce :as ct]))
-
-;; -- Настройки ---------------------------------------------------------------
-(def db-uri "datomic:sql://cashday?jdbc:postgresql://localhost:5432/cashday?user=datomic&password=datomic")
-
-(def config {:uri db-uri})
 
 
 ;; -- Служебные функции -------------------------------------------------------
@@ -21,7 +16,6 @@
     (println "txs: ")
     (println txs)
     (deref (d/transact conn txs))))
-
 
 
 ;; -- Хэлперы функции ---------------------------------------------------------
@@ -132,8 +126,7 @@
    :db/cardinality :db.cardinality/one})
 
 
-
-
+;; -- Компонет для системы ----------------------------------------------------
 (defrecord DatomicComponent
   [datomic-config conn tx-report-queue]
   component/Lifecycle

@@ -2,6 +2,7 @@
 /logs
 /target
 /importcsv
+/importfiles
 /*-init.clj
 /resources/public/js/compiled
 /config

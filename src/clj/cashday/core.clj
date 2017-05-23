@@ -3,24 +3,26 @@
             [cashday.webservice.main :as webservice]
             [cashday.domain.model :as model]
             [cashday.domain.file-data-import :as file-import]
-            [cashday.domain.datomic-utils :as du])
+            [cashday.domain.datomic-utils :as du]
+            [clojure.edn :as edn])
   (:gen-class))
 
 
 (defn prod-system
   []
   (println "prod system")
-  (component/system-map
-   :service-map webservice/service-map-prod
-   :datomic-config du/config
-   :datomic-db
-   (component/using
-     (du/new-datomic-component)
-     [:datomic-config])
-   :pedestal
-   (component/using
-    (webservice/new-pedestal-component)
-    [:service-map :datomic-db])))
+  (let [config (edn/read-string (slurp "config/project-config.edn"))]
+    (component/system-map
+     :service-map (webservice/service-map-prod (:prod-web-port config))
+     :datomic-config {:uri (:db-uri config)}
+     :datomic-db
+     (component/using
+       (du/new-datomic-component)
+       [:datomic-config])
+     :pedestal
+     (component/using
+      (webservice/new-pedestal-component)
+      [:service-map :datomic-db]))))
 
 
 (defn -main [& args]
